@@ -1,42 +1,14 @@
 import pygame
 import datetime
-import random
 import csv
+
+from configurations import *
+import clumpy_diffuse
 
 pygame.init()
 
-###############################################################################
-# Configurations
-###############################################################################
-timer = 5 # time in seconds
-filename = "testcsv.csv" #csv file to append the data to
-snake_speed = 10 # relative speed of the game
-numfood = 50 # number of resources that are dispersed
-#clumpy or diffuse boolean
-
-#colors
-blue = (68, 109, 212)
-light_blue = (168, 210, 240)
-red = (255, 0, 0)
-white = (255, 255, 255)
-black = (0, 0, 0)
-
 #font
 font = pygame.font.SysFont(None, 25)
-
-# locations and dimensions
-play_width = 600
-play_height = 600 #not actually needed, just makes things easier to read on the bottom loop
-sidebar_width = 300
-#sidebar and play rectangle
-play = [0, 0, play_width, play_height]
-sidebar = [play_width, 0, sidebar_width, play_height]
-userIDline = [10, int(play_height/2), int(play_width - 50), 30]
-# dis is the entire window
-dis_width = play_width + sidebar_width
-dis_height = play_height
-
-snake_block = 10 # size of one "block", the width/height of the snake as well as the food
 
 clock = pygame.time.Clock()
 
@@ -83,14 +55,9 @@ def gameLoop():
     x1_change = 0
     y1_change = 0
 
-    foodx = []
-    foody = []
+    clumpy = True # TODO make it based off userID
 
-    # randomly populate the food arrays
-    # currently there can be more than one food at the same place
-    for i in range(0, numfood):
-        foodx.append(round(random.randrange(10, play_width - 10 - snake_block) / 10) * 10)
-        foody.append(round(random.randrange(10, play_height - 10 - snake_block) / 10) * 10)
+    food = clumpy_diffuse.create_food(clumpy)
 
     score = 0
     userid = "";
@@ -183,20 +150,18 @@ def gameLoop():
             y1 += y1_change
 
         rect2 = pygame.draw.rect(dis, blue, [x1, y1, snake_block, snake_block])
-        pygame.display.update(play) #be more specific so it's faster
-
+        pygame.display.update(play) #TODO be more specific so it's faster
 
         # draw all the food
-        for index in range(len(foodx)):
-            pygame.draw.rect(dis, black, [foodx[index], foody[index], snake_block, snake_block])
+        for f in food:
+            pygame.draw.rect(dis, black, [f[0], f[1], snake_block, snake_block])
 
         # update if found a food
-        for index in range(len(foodx)):
-            if x1 == foodx[index] and y1 == foody[index]:
+        for f in food:
+            if (x1, y1) == (f[0], f[1]):
                 score += 1
-                foodx.pop(index)
-                foody.pop(index)
-                break #for efficieny, if two foods overlap then you have to get them twice
+                food.remove(f)
+                break
 
         clock.tick(snake_speed)
 
