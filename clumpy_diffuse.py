@@ -23,7 +23,7 @@ def create_food(clumpy):
             # check if clusters are too close
             far_enough = True
             for cluster in clusters:
-                if dist((x,y), cluster) <= 2 * size_cluster:
+                if dist((x,y), cluster) <= 6 * size_cluster:
                     far_enough = False
                     break
             if far_enough:
